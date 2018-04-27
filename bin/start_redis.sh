@@ -1,3 +1,3 @@
 #!/bin/bash
 
-redis-server redis/redis.conf
+redis-server config/redis.conf

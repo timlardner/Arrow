@@ -7,9 +7,9 @@ app = Celery('celery_worker',
              )
 
 app.conf.update(
-        CELERY_TASK_SERIALIZER = 'json',
-        CELERY_RESULT_SERIALIZER = 'json',
+        CELERY_TASK_SERIALIZER='json',
+        CELERY_RESULT_SERIALIZER='json',
         CELERY_ACCEPT_CONTENT=['json'],
-        CELERY_TIMEZONE = 'Europe/London',
-        CELERY_ENABLE_UTC = True
+        CELERY_TIMEZONE='Europe/London',
+        CELERY_ENABLE_UTC=True
                 )
