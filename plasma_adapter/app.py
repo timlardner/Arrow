@@ -18,9 +18,12 @@ class DataWriter(DataHandler):
         super().__init__()
 
     def cache_data_frame(self, df, key):
-        record_batch = pa.RecordBatch.from_pandas(df)
         object_key = self.get_cache_key(key)
         object_id = plasma.ObjectID(object_key)
+        if self.client.contains(object_id):
+            raise Exception
+
+        record_batch = pa.RecordBatch.from_pandas(df)
 
         # Work out how large our data frame is
         mock_sink = pa.MockOutputStream()
@@ -48,6 +51,8 @@ class DataReader(DataHandler):
     def load_data_frame(self, key):
         object_key = self.get_cache_key(key)
         object_id = plasma.ObjectID(object_key)
+        if not self.client.contains(object_id):
+            return None
 
         [data] = self.client.get_buffers([object_id])
         buffer = pa.BufferReader(data)
