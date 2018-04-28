@@ -3,6 +3,7 @@ import hashlib
 import pyarrow as pa
 import pyarrow.plasma as plasma
 
+from common.utils import format_size
 
 class DataHandler:
     def __init__(self):
@@ -12,16 +13,26 @@ class DataHandler:
     def get_cache_key(string):
         return hashlib.sha1(string.encode()).digest()
 
+    def check_for_object(self, key):
+        object_key = self.get_cache_key(key)
+        object_id = plasma.ObjectID(object_key)
+        return self.client.contains(object_id)
+
 
 class DataWriter(DataHandler):
     def __init__(self):
         super().__init__()
 
-    def cache_data_frame(self, df, key):
+    def cache_data_frame(self, df, key, force_eviction=False):
         object_key = self.get_cache_key(key)
         object_id = plasma.ObjectID(object_key)
         if self.client.contains(object_id):
-            raise Exception
+            string = 'DataWriter: Object exists in cache'
+            if force_eviction:
+                print('{} - evicting'.format(string))
+                self.client.release(object_id)
+            else:
+                raise Exception(string)
 
         record_batch = pa.RecordBatch.from_pandas(df)
 
@@ -31,7 +42,7 @@ class DataWriter(DataHandler):
         stream_writer.write_batch(record_batch)
         stream_writer.close()
         data_size = mock_sink.size()
-        print('DataWriter: Data size is {} bytes'.format(str(data_size)))
+        print('DataWriter: Data size is {}'.format(format_size(data_size)))
 
         # Actually write the data frame to the cache
         buf = self.client.create(object_id, data_size)
