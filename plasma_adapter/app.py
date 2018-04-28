@@ -5,6 +5,7 @@ import pyarrow.plasma as plasma
 
 from common.utils import format_size
 
+
 class DataHandler:
     def __init__(self):
         self.client = plasma.connect("/tmp/plasma", "", 0)

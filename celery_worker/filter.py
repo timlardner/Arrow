@@ -12,11 +12,6 @@ log = get_task_logger(__name__)
 
 
 @app.task
-def add(x, y):
-    return x + y
-
-
-@app.task
 def preload_data(filename, max_rows=None, refresh=False):
     writer = DataWriter()
 
